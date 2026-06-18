@@ -4,6 +4,8 @@ import { metadataHandler } from "./metadata.js";
 import {
   getKeyFileBody,
   getOrCreateIndexNowKey,
+  handleIndexNowDelete,
+  handleIndexNowPublished,
   handleIndexNowTransition,
 } from "./indexnow.js";
 import { generateLlmsTxt } from "./llms.js";
@@ -12,7 +14,7 @@ import { listSchemaEntries } from "./schema/endpoints.js";
 export function seoPlugin(): PluginDescriptor {
   return {
     id: "seo",
-    version: "0.10.0",
+    version: "0.12.0",
     format: "native",
     entrypoint: new URL("./index.ts", import.meta.url).pathname,
     adminEntry: new URL("./admin.tsx", import.meta.url).pathname,
@@ -27,7 +29,7 @@ export function seoPlugin(): PluginDescriptor {
 export function createPlugin() {
   return definePlugin({
     id: "seo",
-    version: "0.10.0",
+    version: "0.12.0",
     capabilities: ["read:content", "page:inject", "network:fetch"],
     allowedHosts: ["api.indexnow.org"],
 
@@ -37,11 +39,19 @@ export function createPlugin() {
         priority: 10,
       },
       "content:afterPublish": {
-        handler: handleIndexNowTransition,
+        handler: handleIndexNowPublished,
+        priority: 50,
+      },
+      "content:afterSave": {
+        handler: handleIndexNowPublished,
         priority: 50,
       },
       "content:afterUnpublish": {
         handler: handleIndexNowTransition,
+        priority: 50,
+      },
+      "content:afterDelete": {
+        handler: handleIndexNowDelete,
         priority: 50,
       },
     },
