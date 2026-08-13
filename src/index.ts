@@ -78,12 +78,17 @@ export function createPlugin() {
         },
       },
       "indexnow/key": {
+        // The key file is public ownership proof, not a secret. Sites proxy this
+        // read-only route to /<key>.txt for IndexNow to verify anonymously.
+        public: true,
         handler: async (ctx: RouteContext) => {
           const key = await getOrCreateIndexNowKey(ctx);
           return { key, keyFile: await getKeyFileBody(ctx) };
         },
       },
       "llms/txt": {
+        // llms.txt is a published index intended for anonymous crawlers.
+        public: true,
         handler: async (ctx: RouteContext) => {
           const body = await generateLlmsTxt(ctx);
           return { enabled: body !== null, body: body ?? "" };
