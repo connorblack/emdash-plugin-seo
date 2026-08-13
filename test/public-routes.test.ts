@@ -74,11 +74,14 @@ describe("published-file route access", () => {
     expect(dispatch).toHaveBeenCalledOnce();
   });
 
-  it.each(["settings", "settings/save"])("keeps %s protected", async (path) => {
+  it.each([
+    ["GET", "settings"],
+    ["POST", "settings/save"],
+  ])("keeps %s %s protected", async (method, path) => {
     const { dispatch, handler } = createAnonymousDispatcher();
     const request = new Request(`https://example.com/${path}`);
 
-    await expect(handler("seo", "GET", path, request)).resolves.toMatchObject({
+    await expect(handler("seo", method, path, request)).resolves.toMatchObject({
       success: false,
       error: { code: "NOT_FOUND" },
     });
